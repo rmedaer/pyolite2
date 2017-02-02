@@ -7,6 +7,8 @@ This module contains classes which define Repository.
 
 from .bundle import Bundle
 
+class RepositoryNotFoundError(Exception): pass
+
 class Repository(object):
     def __init__(self, name):
         self.name = name
@@ -34,11 +36,11 @@ class RepositoryCollection(list):
         return self.get(key)
 
     def get(self, name):
-        for repo in self.repos:
+        for repo in self:
             if repo.name == name:
                 return repo
 
-        raise ValueError('Unable to find repository')
+        raise RepositoryNotFoundError('Unable to find repository.')
 
     def get_or_create(self, name):
         try:
