@@ -25,6 +25,7 @@ def version_msg():
     help=u'main adming configuration path',
     default=u'gitolite.conf'
 )
+
 def main(context, command, config):
     # Instance a Pyolite object from admin configuration URI
     pyolite = Pyolite(config)
@@ -39,6 +40,10 @@ def main(context, command, config):
         """ List Git repositories. """
         for repo in pyolite.repos:
             print repo.name
+
+    @switcher.command('config', 'dump')
+    def test():
+        print pyolite.main_file
 
     # Let's switch !
     switcher.switch(context, command)

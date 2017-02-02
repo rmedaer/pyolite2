@@ -44,16 +44,18 @@ class File(object):
         def gotDefault(str, *args, **kwargs):
             raise FileError("Unrecognized string: '%s'" % str)
 
-        @lexer.op(P_EMPTY)
+        @lexer.op([P_EMPTY, P_COMMENT])
         def gotEmptyLine(matches, *args, **kwargs):
-            pass
+            # Even it's an empty line, add it to our tree in order to dump it later
+            self.tree.append(matches.group(0))
+
 
         @lexer.op(P_REPO)
         def gotRepo(matches, *args, **kwargs):
             name = matches.group(1)
 
             # Save last bundle
-            self.last_bundle = Bundle(name)
+            self.last_bundle = Bundle([name])
 
             # Insert bundle into tree
             self.tree.append(self.last_bundle)
@@ -63,19 +65,23 @@ class File(object):
         @lexer.op(P_RULE)
         def gotRule(matches, *args, **kwargs):
             # Make sure we already parse a bundle
-            if not self.last_bundle:
+            if self.last_bundle == None:
                 raise ValueError('Malformed Gitolite configuration')
 
             # Instance Rule object
             rule = Rule(matches.group(1), matches.group(2))
             # Insert its users
-            rule.append(re.split('\s+', matches.group(3)))
+            rule += re.split('\s+', matches.group(3))
 
-            # Append rule to tree and last parsed bundle
+            # Append last parsed bundle in tree
             self.last_bundle.append(rule)
-            self.tree.append(rule)
 
         lexer.parse()
+
+    def __str__(self):
+        def dump_entry(entry): return entry.__str__()
+
+        return '\n'.join(map(dump_entry, self.tree))
 
 class LexerError(Exception):
     """ LexerError is an exception thrown by Lexer objects. """

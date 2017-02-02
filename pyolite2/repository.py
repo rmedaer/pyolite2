@@ -48,13 +48,12 @@ class RepositoryCollection(list):
             self.append(repo)
             return repo
 
-class Bundle(object):
-    def __init__(self, name):
-        self.name = name
-        self.rules = []
+class Bundle(list):
+    def __init__(self, repos):
+        super(list, self).__init__()
+        self.repos = repos
 
-    def append(self, rule):
-        """
-        Append rule to this bundle
-        """
-        self.rules.append(rule)
+    def __str__(self):
+        def dump_entry(entry): return entry.__str__()
+
+        return 'repo ' + ' '.join(self.repos) + ('\n' if self else '') + '\n'.join(map(dump_entry, self))
