@@ -9,13 +9,14 @@ file.
 import re
 from .repository import Bundle
 from .rule import Rule
+from .config import Config
 
 P_COMMENT = '^\s*#\s*([\S\s]*?)\s*$'
 P_GROUP   = '^@(\S+)\s*=\s*([\S\s]*?)\s*$'
 P_REPO    = '^repo\s+([\S\s]*?)\s*$'
 P_INCLUDE = '^include\s+"?([\S\s]*?)"?\s*$'
 P_RULE    = '^\s*(-|C|R|RW\+?(?:C?D?|D?C?)M?)\s+(\S*)?\s*=\s*([\S\s]*?)\s*$'
-P_CONFIG  = '^\s*config\s*(\S+\s*=\s*.*)'
+P_CONFIG  = '^\s*config\s*(\S+)\s*=\s*(.*)'
 P_EMPTY   = '^\s*$'
 P_TYPE    = type(re.compile('.'))
 
@@ -33,6 +34,13 @@ class File(object):
         self.uri = uri
         self.tree = []
         self.last_bundle = None
+
+    def get_last_bundle(self):
+        # Make sure we already parsed a bundle
+        if self.last_bundle == None:
+            raise ValueError('Malformed Gitolite configuration')
+
+        return self.last_bundle
 
     def load(self):
         """ Load this Gitolite configuration file. """
@@ -64,17 +72,21 @@ class File(object):
 
         @lexer.op(P_RULE)
         def gotRule(matches, *args, **kwargs):
-            # Make sure we already parse a bundle
-            if self.last_bundle == None:
-                raise ValueError('Malformed Gitolite configuration')
-
-            # Instance Rule object
+            # Instance Rule object and insert its users
             rule = Rule(matches.group(1), matches.group(2))
-            # Insert its users
             rule += re.split('\s+', matches.group(3))
 
-            # Append last parsed bundle in tree
-            self.last_bundle.append(rule)
+            # Append to last parsed bundle in tree
+            self.get_last_bundle().append(rule)
+
+        @lexer.op(P_CONFIG)
+        def gotConfig(matches, *args, **kwargs):
+            # Instance Config object
+            config = Config(matches.group(1), matches.group(2))
+
+            # Append config in last bundle of the tree
+            self.get_last_bundle().append(config)
+
 
         lexer.parse()
 

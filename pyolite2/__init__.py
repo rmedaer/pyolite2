@@ -11,6 +11,7 @@ __version__ = '0.1.0'
 from .file import File
 from .pyolite import Pyolite
 from .rule import Rule
+from .config import Config
 from .repository import (
     Repository,
     RepositoryCollection,

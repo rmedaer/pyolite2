@@ -7,6 +7,11 @@ This module contains classes which define Repository.
 
 from .rule import Rule
 
+# Some filters and mapping functions for Repository class
+def _only_rules(item): return isinstance(item, Rule)
+def _only_configs(item): return isinstance(item, Config)
+def _concat_bundles(a, b): return a + b
+
 class RepositoryNotFoundError(Exception): pass
 
 class Repository(object):
@@ -22,14 +27,12 @@ class Repository(object):
             pass
 
     def rules(self):
-        def only_rules(item):
-            return isinstance(item, Rule)
+        # Map bundles to rules and reduce them
+        return filter(_only_rules, reduce(_concat_bundles, self.bundles))
 
-        def concat_bundles(a, b):
-            return a + b
-
-        # Map bundle to rule and reduce them
-        return filter(only_rules, reduce(concat_bundles, self.bundles))
+    def configs(self):
+        # Map bundles to configs and reduce them
+        return filter(_only_configs, reduce(_concat_bundles, self.bundles))
 
 class RepositoryCollection(list):
     def __getitem__(self, key):
