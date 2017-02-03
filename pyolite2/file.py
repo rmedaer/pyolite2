@@ -68,7 +68,7 @@ class File(object):
             # Insert bundle into tree
             self.tree.append(self.last_bundle)
             # Insert bundle into existing repository or create it !
-            self.pyolite.repos.get_or_create(name).append(self.last_bundle)
+            self.pyolite.repos._get_or_create(name).append(self.last_bundle)
 
         @lexer.op(P_RULE)
         def gotRule(matches, *args, **kwargs):

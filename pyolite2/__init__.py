@@ -12,8 +12,10 @@ from .file import File
 from .pyolite import Pyolite
 from .rule import Rule
 from .config import Config
-from .repository import (
-    Repository,
+from .bundle import Bundle
+from .repository import Repository
+from .repository_collection import (
     RepositoryCollection,
-    RepositoryNotFoundError
+    RepositoryNotFoundError,
+    RepositoryDuplicateError
 )
