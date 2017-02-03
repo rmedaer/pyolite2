@@ -7,6 +7,7 @@ class Pyolite(object):
     def __init__(self, admin_config):
         # Instance main configuration file
         self.main_file = File(self, admin_config)
+        self.files = [self.main_file]
         self.repos = RepositoryCollection()
 
         @self.repos.on_added()
@@ -17,3 +18,7 @@ class Pyolite(object):
     def load(self):
         """ Load Gitolite admin configuration """
         self.main_file.load()
+
+    def save(self):
+        for file in self.files:
+            file.save()

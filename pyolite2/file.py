@@ -90,6 +90,10 @@ class File(object):
 
         lexer.parse()
 
+    def save(self):
+        with open(self.uri, 'w') as fd:
+            fd.write(self.__str__())
+
     def __str__(self):
         def dump_entry(entry): return entry.__str__()
 
