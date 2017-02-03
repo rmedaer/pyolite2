@@ -10,6 +10,9 @@ __version__ = '0.1.0'
 
 from .file import File
 from .pyolite import Pyolite
-from .repository import Repository
-from .repository import RepositoryCollection
-from .repository import RepositoryNotFoundError
+from .rule import Rule
+from .repository import (
+    Repository,
+    RepositoryCollection,
+    RepositoryNotFoundError
+)

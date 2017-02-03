@@ -5,7 +5,7 @@
 This module contains classes which define Repository.
 """
 
-from .bundle import Bundle
+from .rule import Rule
 
 class RepositoryNotFoundError(Exception): pass
 
@@ -22,14 +22,14 @@ class Repository(object):
             pass
 
     def rules(self):
-        def extract(bundle):
-            return bundle.rules
+        def only_rules(item):
+            return isinstance(item, Rule)
 
-        def concat(a, b):
+        def concat_bundles(a, b):
             return a + b
 
         # Map bundle to rule and reduce them
-        return reduce(concat, map(extract, self.bundles))
+        return filter(only_rules, reduce(concat_bundles, self.bundles))
 
 class RepositoryCollection(list):
     def __getitem__(self, key):
