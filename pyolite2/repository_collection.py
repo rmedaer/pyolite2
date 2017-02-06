@@ -8,11 +8,6 @@ from .config import Config
 class RepositoryNotFoundError(Exception): pass
 class RepositoryDuplicateError(Exception): pass
 
-# Some filters and mapping functions for Repository class
-def _only_rules(item): return isinstance(item, Rule)
-def _only_configs(item): return isinstance(item, Config)
-def _concat_bundles(a, b): return a + b
-
 class RepositoryCollection(list):
     def __init__(self):
         super(RepositoryCollection, self).__init__()

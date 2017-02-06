@@ -8,6 +8,11 @@ This module contains classes which define Repository.
 from .rule import Rule
 from .bundle import Bundle
 
+# Some filters and mapping functions for Repository class
+def _only_rules(item): return isinstance(item, Rule)
+def _only_configs(item): return isinstance(item, Config)
+def _concat_bundles(a, b): return a + b
+
 class Repository(object):
     def __init__(self, name):
         self.name = name
