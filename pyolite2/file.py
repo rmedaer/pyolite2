@@ -97,7 +97,7 @@ class File(object):
     def __str__(self):
         def dump_entry(entry): return entry.__str__()
 
-        return '\n'.join(map(dump_entry, self.tree))
+        return '\n'.join(map(dump_entry, self.tree)) + '\n'
 
 class LexerError(Exception):
     """ LexerError is an exception thrown by Lexer objects. """
