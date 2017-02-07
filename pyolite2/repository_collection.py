@@ -12,11 +12,15 @@ class RepositoryCollection(list):
     def __init__(self):
         super(RepositoryCollection, self).__init__()
         self.on_addeds = []
+        self.on_removeds = []
 
     def __getitem__(self, key):
         return self.get(key)
 
     def get(self, name):
+        if isinstance(name, Repository):
+            name = name.name
+
         for repo in self:
             if repo.name == name:
                 return repo
@@ -45,6 +49,12 @@ class RepositoryCollection(list):
             return handler
         return wrapper
 
+    def on_removed(self):
+        def wrapper(handler):
+            self.on_removeds.append(handler)
+            return handler
+        return wrapper
+
     def exists(self, name):
         for repo in self:
             if repo.name == name:
@@ -65,3 +75,13 @@ class RepositoryCollection(list):
             raise RepositoryDuplicateError('Duplicate repository \'%s\'' % repo.name)
 
         super(RepositoryCollection, self).append(repo)
+
+    def remove(self, name):
+        repo = self.get(name)
+        list.remove(self, repo)
+
+        for handler in self.on_removeds:
+            handler(repo)
+
+    def _remove(self, name):
+        list.remove(self, self.get(name))
