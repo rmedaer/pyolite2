@@ -27,8 +27,14 @@ class Repository(object):
 
     def rules(self):
         # Map bundles to rules and reduce them
+        if not self.bundles:
+            return []
+
         return filter(_only_rules, reduce(_concat_bundles, self.bundles))
 
     def configs(self):
         # Map bundles to configs and reduce them
+        if not self.bundles:
+            return []
+
         return filter(_only_configs, reduce(_concat_bundles, self.bundles))
