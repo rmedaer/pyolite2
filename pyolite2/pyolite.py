@@ -12,14 +12,17 @@ class Pyolite(object):
 
         @self.repos.on_added()
         def on_repo_added(repo):
-            # When a repo has been added, we automatically assign it a Bundle
-            self.main_file.tree.append(Bundle([repo.name]))
+            for bundle in repo.bundles:
+                self.main_file.tree.append(bunble)
 
         @self.repos.on_removed()
         def on_repo_removed(repo):
-            # When a repo has been removed, we parse bundles and remove it
             for bundle in repo.bundles:
                 bundle.drop_name(repo.name)
+
+        @self.repos.on_bundle_added()
+        def on_bundle_added(bundle):
+            self.main_file.tree.append(bundle)
 
     def load(self):
         """ Load Gitolite admin configuration """

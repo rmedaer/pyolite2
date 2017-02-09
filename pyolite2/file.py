@@ -7,7 +7,8 @@ file.
 """
 
 import re
-from .repository import Bundle
+from .repository import Repository
+from .bundle import Bundle
 from .rule import Rule
 from .config import Config
 
@@ -60,15 +61,27 @@ class File(object):
 
         @lexer.op(P_REPO)
         def gotRepo(matches, *args, **kwargs):
-            name = matches.group(1)
+            names = re.split('\s+', matches.group(1))
 
             # Save last bundle
-            self.last_bundle = Bundle([name])
+            self.last_bundle = Bundle(names)
 
             # Insert bundle into tree
             self.tree.append(self.last_bundle)
-            # Insert bundle into existing repository or create it !
-            self.pyolite.repos._get_or_create(name).append(self.last_bundle)
+
+            for name in names:
+                # Insert bundle into existing repository or create it !
+                try:
+                    # Get repo if already exists
+                    repo = self.pyolite.repos.get(name)
+                except:
+                    # Initialize EMPTY repository
+                    repo = Repository(name, True)
+                    # Append repo to collection (without notify the whole config)
+                    self.pyolite.repos.append(repo, False)
+
+                # Append last_bundle into this repo (without notification)
+                repo.append(self.last_bundle, False)
 
         @lexer.op(P_RULE)
         def gotRule(matches, *args, **kwargs):
