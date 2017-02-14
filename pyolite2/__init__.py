@@ -8,7 +8,7 @@ Python module to manage Gitolite; a centralized Git hosting server.
 
 __version__ = '0.1.0'
 
-from .file import File
+from .file import File, FileError
 from .pyolite import Pyolite
 from .rule import Rule
 from .config import Config
