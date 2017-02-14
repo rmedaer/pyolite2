@@ -13,7 +13,7 @@ class Pyolite(object):
         @self.repos.on_added()
         def on_repo_added(repo):
             for bundle in repo.bundles:
-                self.main_file.tree.append(bunble)
+                self.main_file.tree.append(bundle)
 
         @self.repos.on_removed()
         def on_repo_removed(repo):
