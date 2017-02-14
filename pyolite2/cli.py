@@ -43,7 +43,8 @@ def main(context, command, config):
 
     @switcher.command('config', 'dump')
     def test():
-        print pyolite.main_file
+        for file in pyolite.files:
+            print file
 
     # Let's switch !
     switcher.switch(context, command)
