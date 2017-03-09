@@ -5,6 +5,7 @@ import sys
 import click
 from . import __version__
 from .pyolite import Pyolite
+from .errors import PyoliteException
 
 class CLIContext(object):
     def __init__(self, config_dir):
@@ -17,12 +18,15 @@ class CLIContext(object):
     u'-c', u'--config-dir',
     help=u'Admin configuration directory path.',
     default=u'conf',
-    type=click.Path(exists=True)
+    type=click.Path()
 )
 @click.pass_context
 def main(ctx, config_dir):
     # Transfer config parameter to context
-    ctx.obj = CLIContext(config_dir)
+    try:
+        ctx.obj = CLIContext(config_dir)
+    except PyoliteException as error:
+        ctx.fail(error.message)
 
 @main.group()
 @click.pass_context
