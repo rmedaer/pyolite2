@@ -5,6 +5,7 @@ import sys
 import click
 from . import __version__
 from .pyolite import Pyolite
+from .repository import Repository
 from .errors import PyoliteException
 
 class CLIContext(object):
@@ -70,6 +71,26 @@ def repo(ctx, **kwargs):
 def list(ctx, **kwargs):
     for repo in ctx.obj.pyolite.repos:
         print repo.name
+
+@repo.command()
+@click.argument('name')
+@click.pass_context
+def add(ctx, name, **kwargs):
+    try:
+        ctx.obj.pyolite.repos.append(Repository(name))
+        ctx.obj.pyolite.save()
+    except PyoliteException as error:
+        ctx.fail(error.message)
+
+@repo.command()
+@click.argument('name')
+@click.pass_context
+def remove(ctx, name, **kwargs):
+    try:
+        ctx.obj.pyolite.repos.remove(name)
+        ctx.obj.pyolite.save()
+    except PyoliteException as error:
+        ctx.fail(error.message)
 
 if __name__ == "__main__":
     main()
