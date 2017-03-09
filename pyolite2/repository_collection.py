@@ -3,10 +3,7 @@
 from .repository import Repository
 from .rule import Rule
 from .config import Config
-
-# Exceptions
-class RepositoryNotFoundError(Exception): pass
-class RepositoryDuplicateError(Exception): pass
+from .errors import RepositoryNotFoundException, RepositoryDuplicateException
 
 class RepositoryCollection(list):
     def __init__(self):
@@ -26,7 +23,7 @@ class RepositoryCollection(list):
             if repo.name == name:
                 return repo
 
-        raise RepositoryNotFoundError('Unable to find repository.')
+        raise RepositoryNotFoundException('Repository \'%s\' could not be found' % name)
 
     def on_added(self):
         def wrapper(handler):
@@ -57,7 +54,7 @@ class RepositoryCollection(list):
             raise ValueError('Given value is not a Repository')
 
         if self.exists(repo.name):
-            raise RepositoryDuplicateError('Duplicate repository \'%s\'' % repo.name)
+            raise RepositoryDuplicateException('Duplicate repository \'%s\'' % repo.name)
 
         super(RepositoryCollection, self).append(repo)
 
@@ -72,7 +69,7 @@ class RepositoryCollection(list):
         def duplicate_rule_to_repo(repo_name, rule):
             try:
                 repo = self.get(repo_name)
-            except RepositoryNotFoundError:
+            except RepositoryNotFoundException:
                 repo = Repository(name)
                 self.append(repo)
 

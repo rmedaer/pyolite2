@@ -11,6 +11,10 @@ from .repository import Repository
 from .bundle import Bundle
 from .rule import Rule
 from .config import Config
+from .errors import (
+    ConfigurationFileException,
+    PyoliteLexerException
+)
 
 P_COMMENT = '^\s*#\s*([\S\s]*?)\s*$'
 P_GROUP   = '^@(\S+)\s*=\s*([\S\s]*?)\s*$'
@@ -20,10 +24,6 @@ P_RULE    = '^\s*(-|C|R|RW\+?(?:C?D?|D?C?)M?)\s+(\S*)?\s*=\s*([\S\s]*?)\s*$'
 P_CONFIG  = '^\s*config\s*(\S+)\s*=\s*(.*)'
 P_EMPTY   = '^\s*$'
 P_TYPE    = type(re.compile('.'))
-
-class FileError(Exception):
-    """ FileError is an Exception thrown by File objects. """
-    pass
 
 class File(object):
     """ This class represents a Gitolite configuration file. """
@@ -39,7 +39,7 @@ class File(object):
     def get_last_bundle(self):
         # Make sure we already parsed a bundle
         if self.last_bundle == None:
-            raise ValueError('Malformed Gitolite configuration')
+            raise ConfigurationFileException('Malformed Gitolite configuration')
 
         return self.last_bundle
 
@@ -51,7 +51,7 @@ class File(object):
 
         @lexer.default
         def gotDefault(str, *args, **kwargs):
-            raise FileError("Unrecognized string: '%s'" % str)
+            raise ConfigurationFileException("Unrecognized string: '%s'" % str)
 
         @lexer.op([P_EMPTY, P_COMMENT])
         def gotEmptyLine(matches, *args, **kwargs):
@@ -112,10 +112,6 @@ class File(object):
 
         return '\n'.join(map(dump_entry, self.tree)) + '\n'
 
-class LexerError(Exception):
-    """ LexerError is an exception thrown by Lexer objects. """
-    pass
-
 class Lexer(object):
     """ Lexer class; this lexer expose decorators to switch parser regex.
 
@@ -153,10 +149,10 @@ class Lexer(object):
                 if type(regex) != P_TYPE:
                     regex = re.compile(regex)
 
-                    # Raise SwitchError on a duplicate case regex.
+                # Raise SwitchError on a duplicate case regex.
                 for previous, _ in self.regexes:
                     if regex.pattern == previous.pattern:
-                        raise LexerError('duplicate regex case value \'%s\'' % regex.pattern)
+                        raise PyoliteLexerException('Duplicate regex case value \'%s\'' % regex.pattern)
                 self.regexes.append((regex, handler))
 
             return handler
@@ -172,9 +168,14 @@ class Lexer(object):
 
     def parse(self):
         """ Parse file line by line. """
-        with open(self.uri) as fd:
-            for line in fd.read().splitlines():
-                self.check(line)
+        try:
+            with open(self.uri, 'r') as fd:
+                for line in fd.read().splitlines():
+                    self.check(line)
+        except IOError:
+            raise ConfigurationFileException(
+                'Failed to read configuration file \'%s\'' % self.uri
+            )
 
     def check(self, str, *args, **kwargs):
         """ Check given string with registered handler. """
@@ -185,7 +186,7 @@ class Lexer(object):
             value = str
 
         if not handler:
-            raise LexerError('failure')
+            raise PyoliteLexerException('Not any handler found, please provide a default handler')
 
         return handler(value, *args, **kwargs)
 

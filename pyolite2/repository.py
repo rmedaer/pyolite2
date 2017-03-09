@@ -5,8 +5,11 @@
 This module contains classes which define Repository.
 """
 
+import re
+
 from .rule import Rule
 from .bundle import Bundle
+from .errors import InvalidNameException
 
 # Some filters and mapping functions for Repository class
 def _only_rules(item): return isinstance(item, Rule)
@@ -15,6 +18,9 @@ def _concat_bundles(a, b): return a + b
 
 class Repository(object):
     def __init__(self, name, empty=False):
+        if not re.search('\S*', name):
+            raise InvalidNameException('Invalid repository name')
+
         self.name = name
         self.on_addeds = []
         self.on_forked_rules = []

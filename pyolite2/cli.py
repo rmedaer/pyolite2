@@ -5,49 +5,92 @@ import sys
 import click
 from . import __version__
 from .pyolite import Pyolite
-from .switcher import ContextSwitcher
+from .repository import Repository
+from .errors import PyoliteException
 
-def version_msg():
-    """ Returns the Pyolite2 version, location and Python powering it. """
-    # [NOTE] Usage of click is inspired from cookicutter project
-    python_version = sys.version[:3]
-    location = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    message = u'Pyolite2 %(version)s from {} (Python {})'
-    return message.format(location, python_version)
+class CLIContext(object):
+    def __init__(self, config_dir):
+        self.config_dir = config_dir
+        self.pyolite = Pyolite(os.path.join(self.config_dir, u'gitolite.conf'))
+        self.pyolite.load()
 
-# Defining command and options
-@click.command(context_settings=dict(help_option_names=[u'-h', u'--help']))
-@click.version_option(__version__, u'-V', u'--version', message=version_msg())
-@click.argument(u'context')
-@click.argument(u'command')
+@click.group()
 @click.option(
-    u'-c', u'--config',
-    help=u'main adming configuration path',
-    default=u'gitolite.conf'
+    u'-c', u'--config-dir',
+    help=u'Admin configuration directory path.',
+    default=u'conf',
+    type=click.Path()
 )
+@click.pass_context
+def main(ctx, config_dir):
+    # Transfer config parameter to context
+    try:
+        ctx.obj = CLIContext(config_dir)
+    except PyoliteException as error:
+        ctx.fail(error.message)
 
-def main(context, command, config):
-    # Instance a Pyolite object from admin configuration URI
-    pyolite = Pyolite(config)
-    pyolite.load()
+@main.group()
+@click.pass_context
+def config(ctx, **kwargs):
+    pass
 
-    # Instance switcher to select context/command
-    switcher = ContextSwitcher()
+@config.command()
+@click.argument('files', nargs=-1, required=False)
+@click.option(
+    u'-a', u'--all',
+    help=u'dump all files',
+    is_flag=True
+)
+@click.pass_context
+def dump(ctx, files, all):
+    if not files and not all:
+        ctx.fail('You have to provide at least one file or add --all option')
 
-    # Define contexts and commands
-    @switcher.command('repo', 'list')
-    def list_repositories():
-        """ List Git repositories. """
-        for repo in pyolite.repos:
-            print repo.name
-
-    @switcher.command('config', 'dump')
-    def test():
-        for file in pyolite.files:
+    if all:
+        for file in ctx.obj.pyolite.files:
             print file
+    else:
+        for file in files:
+            found = False
+            for pyofile in ctx.obj.pyolite.files:
+                if os.path.join(ctx.obj.config_dir, file) == pyofile.uri:
+                    print pyofile
+                    found = True
+                    break
 
-    # Let's switch !
-    switcher.switch(context, command)
+            if not found:
+                ctx.fail('Configuration file \'%s\' not found' % file)
+
+@main.group()
+@click.pass_context
+def repo(ctx, **kwargs):
+    pass
+
+@repo.command()
+@click.pass_context
+def list(ctx, **kwargs):
+    for repo in ctx.obj.pyolite.repos:
+        print repo.name
+
+@repo.command()
+@click.argument('name')
+@click.pass_context
+def add(ctx, name, **kwargs):
+    try:
+        ctx.obj.pyolite.repos.append(Repository(name))
+        ctx.obj.pyolite.save()
+    except PyoliteException as error:
+        ctx.fail(error.message)
+
+@repo.command()
+@click.argument('name')
+@click.pass_context
+def remove(ctx, name, **kwargs):
+    try:
+        ctx.obj.pyolite.repos.remove(name)
+        ctx.obj.pyolite.save()
+    except PyoliteException as error:
+        ctx.fail(error.message)
 
 if __name__ == "__main__":
     main()
