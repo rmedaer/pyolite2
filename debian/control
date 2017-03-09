@@ -15,7 +15,7 @@ Vcs-Browser: https://github.com/rmedaer/pyolite2
 Package: pyolite2
 Architecture: all
 Depends: ${misc-Depends},
-         python2.7,
+         ${python:Depends},
          python-pyolite2
 Description: Gitolite configuration manager
  Pyolite2 is managing Gitolite configuration files.
@@ -25,7 +25,7 @@ Description: Gitolite configuration manager
 Package: python-pyolite2
 Architecture: all
 Depends: ${misc:Depends},
-         python-all,
+         ${python:Depends},
          python-click
 Description: Gitolite configuration manager (Python 2 module)
  Pyolite2 is managing Gitolite configuration files.
