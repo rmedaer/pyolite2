@@ -1,5 +1,5 @@
 Source: python-pyolite2
-Section: misc
+Section: python
 Priority: optional
 Maintainer: Raphael Medaer <raphael@medaer.me>
 Build-Depends: debhelper (>= 9),
