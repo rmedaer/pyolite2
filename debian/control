@@ -1,0 +1,31 @@
+Source: python-pyolite2
+Section: misc
+Priority: optional
+Maintainer: Raphael Medaer <raphael@medaer.me>
+Build-Depends: debhelper (>= 9),
+               dh-python,
+               python-all,
+               python-click,
+               python-setuptools
+Standards-Version: 3.9.5
+Homepage: https://github.com/rmedaer/pyolite2
+Vcs-Git: git://github.com/rmedaer/pyolite2
+Vcs-Browser: https://github.com/rmedaer/pyolite2
+
+Package: pyolite2
+Architecture: all
+Depends: ${misc-Depends},
+         python2.7,
+         python-pyolite2
+Description: Gitolite configuration manager
+ Pyolite2 is managing Gitolite configuration files.
+ .
+ This package contains Pyolite2 command-line utility.
+
+Package: python-pyolite2
+Architecture: all
+Depends: ${misc:Depends},
+         python-all,
+         python-click
+Description: Gitolite configuration manager (Python 2 module)
+ Pyolite2 is managing Gitolite configuration files.

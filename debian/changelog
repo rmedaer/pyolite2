@@ -1,0 +1,6 @@
+python-pyolite2 (0.2.0) unstable; urgency=low
+
+  * Initialized Debian releases.
+  * Added CLI commands to add and remove repositories.
+
+ -- Raphael Medaer <raphael@medaer.me>  Thu, 09 Mar 2017 16:07:47 +0100
