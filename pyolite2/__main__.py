@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
-if __name__ == "__main__":  # pragma: no cover
-    main()
+from .cli import main
 
+if __name__ == "__main__":  # pragma: no cover
+    main(prog_name="pyolite2")

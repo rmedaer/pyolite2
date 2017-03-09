@@ -1,1 +1,4 @@
 *.pyc
+build
+dist
+pyolite2.egg-info
