@@ -11,6 +11,7 @@ from .repository import Repository
 from .bundle import Bundle
 from .rule import Rule
 from .config import Config
+from .option import Option
 from .errors import (
     ConfigurationFileException,
     PyoliteLexerException
@@ -22,6 +23,7 @@ P_REPO    = '^repo\s+([\S\s]*?)\s*$'
 P_INCLUDE = '^include\s+"?([\S\s]*?)"?\s*$'
 P_RULE    = '^\s*(-|C|R|RW\+?(?:C?D?|D?C?)M?)\s+(\S*)?\s*=\s*([\S\s]*?)\s*$'
 P_CONFIG  = '^\s*config\s*(\S+)\s*=\s*(.*)'
+P_OPTION  = '^\s*option\s*(\S+)\s*=\s*(.*)'
 P_EMPTY   = '^\s*$'
 P_TYPE    = type(re.compile('.'))
 
@@ -100,6 +102,13 @@ class File(object):
             # Append config in last bundle of the tree
             self.get_last_bundle().append(config)
 
+        @lexer.op(P_OPTION)
+        def gotConfig(matches, *args, **kwargs):
+            # Instance Option object
+            option = Option(matches.group(1), matches.group(2))
+
+            # Append option in last bundle of the tree
+            self.get_last_bundle().append(option)
 
         lexer.parse()
 
